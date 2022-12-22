@@ -20,3 +20,7 @@ download.file(
 )
 
 unzip(zipfile = "media_scrape_master.zip")
+
+if(!dir.exists("german-media-scrape-master/data")) {
+  dir.create("german-media-scrape-master/data")
+}
