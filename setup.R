@@ -1,5 +1,5 @@
-# Script to set up the scraping process on any computer. Will download the
-# current development version.
+# You can use this script to download all the code without git & install the 
+# dependencies.
 
 # Please make sure to have R (and preferrably RStudio) installed on your PC before
 # proceeding.
@@ -15,7 +15,7 @@ require("purrr")
 
 # Getting the scripts from the repository:
 download.file(
-  url = "Github-repo Zip download url", 
+  url = "https://github.com/kssrr/german-media-scrape/archive/refs/heads/master.zip", 
   destfile = "media_scrape_master.zip"
 )
 
