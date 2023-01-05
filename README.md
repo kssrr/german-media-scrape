@@ -13,3 +13,5 @@ If you are unfamiliar with git, you can copy-paste & run the `setup.R`-script, w
 You could also look at the salience of particular topics:
 
 ![Media Attention on Ukraine after the 2022 invasion.](https://user-images.githubusercontent.com/121236725/210806381-59ed1d41-fac2-4b1f-a99d-748e30a428ef.png)
+
+![World Cup 2022](https://user-images.githubusercontent.com/121236725/210814418-e05d6aaf-5976-454f-89af-d5e9998476df.png)
