@@ -15,3 +15,5 @@ You could also look at the salience of particular topics:
 ![Media Attention on Ukraine after the 2022 invasion.](https://user-images.githubusercontent.com/121236725/210806381-59ed1d41-fac2-4b1f-a99d-748e30a428ef.png)
 
 ![World Cup 2022](https://user-images.githubusercontent.com/121236725/210814418-e05d6aaf-5976-454f-89af-d5e9998476df.png)
+
+**NOTE:** Some of the scripts make use of `pbmcapply::pbmclapply()` (please find the project [here](https://github.com/kvnkuang/pbmcapply)), which does not work on Windows. For a parallelized `lapply()`-solution on Windows, e.g. look into `parallel::parLapply()` (see [here](https://gradientdescending.com/simple-parallel-processing-in-r/) for a brief guide).
