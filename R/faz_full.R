@@ -1,3 +1,4 @@
+# NOTE: this script is still a work in progress!
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 library(dplyr)
