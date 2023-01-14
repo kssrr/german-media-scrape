@@ -20,4 +20,6 @@ Or investigate correlations and clusters of keywords (click to enlarge):
 
 ![Network](https://user-images.githubusercontent.com/121236725/212491454-24f43fbc-788f-4496-878f-c5068d68f89a.png)
 
+![welt_network](https://user-images.githubusercontent.com/121236725/212496053-41494d26-1043-477c-b23a-3d29fe73613a.png)
+
 **NOTE:** Some of the scripts make use of `pbmcapply::pbmclapply()` (please find the project [here](https://github.com/kvnkuang/pbmcapply)), which does not work on Windows. For a parallelized `lapply()`-solution on Windows, e.g. look into `parallel::parLapply()` (see [here](https://gradientdescending.com/simple-parallel-processing-in-r/) for a brief guide).
