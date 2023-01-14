@@ -98,6 +98,7 @@ taz_full <- pbmclapply(
         data.frame(
           url         = url,
           date        = get_meta(article, "date"),
+          title       = get_title(article),
           author      = get_meta(article, "author"),
           description = get_meta(article, "description"),
           keywords    = get_meta(article, "keywords"),
@@ -113,6 +114,7 @@ taz_full <- pbmclapply(
         data.frame(
           url         = url,
           date        = NA_character_,
+          title       = NA_character_,
           author      = NA_character_,
           description = NA_character_,
           keywords    = NA_character_,
