@@ -65,6 +65,14 @@ check_paywall <- function(html) {
   }
 }
 
+get_title <- function(src) {
+  out <- src |> 
+    html_element("title") |> 
+    html_text2()
+  if (rlang::is_empty(out)) return(NA_character_)
+  return(out)
+}
+
 get_body <- function(html) {
   body <- html %>% 
     html_elements("p") %>% 
@@ -130,6 +138,7 @@ spiegel_full <- pbmclapply(
         out <- data.frame(
           url         = url,
           date        = get_date(article),
+          title       = get_title(article),
           author      = get_author(article),
           description = get_description(article),
           keywords    = get_keywords(article),
@@ -156,6 +165,7 @@ spiegel_full <- pbmclapply(
         out <- data.frame(
           url         = url,
           date        = NA_character_,
+          title       = NA_character_,
           author      = NA_character_,
           description = NA_character_,
           keywords    = NA_character_,
