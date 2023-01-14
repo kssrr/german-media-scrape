@@ -16,7 +16,7 @@ You could also look at the salience of particular topics:
 
 ![World Cup 2022](https://user-images.githubusercontent.com/121236725/210814418-e05d6aaf-5976-454f-89af-d5e9998476df.png)
 
-Or investigate correlations and clusters of keywords (click to enlarge):
+Or investigate correlations and clusters of keywords (click to enlarge; see [here](https://www.tidytextmining.com/ngrams.html#counting-and-correlating-pairs-of-words-with-the-widyr-package) for the methodology):
 
 ![Network](https://user-images.githubusercontent.com/121236725/212491454-24f43fbc-788f-4496-878f-c5068d68f89a.png)
 
