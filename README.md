@@ -23,3 +23,5 @@ Or investigate pairwise correlation clusters of keywords (click to enlarge; see 
 ![welt_network](https://user-images.githubusercontent.com/121236725/212496053-41494d26-1043-477c-b23a-3d29fe73613a.png)
 
 **NOTE:** Some of the scripts make use of `pbmcapply::pbmclapply()` (please find the project [here](https://github.com/kvnkuang/pbmcapply)), which does not work on Windows. For a parallelized `lapply()`-solution on Windows, e.g. look into `parallel::parLapply()` (see [here](https://gradientdescending.com/simple-parallel-processing-in-r/) for a brief guide).
+
+*Special thanks to the [University of Münster](https://www.uni-muenster.de/de/) for providing us with additional computational resources for this project.*
