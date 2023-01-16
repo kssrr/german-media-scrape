@@ -43,8 +43,6 @@ article_links <- map(
 
 article_links <- do.call(c, article_links)
 
-# alle Artikel ziehen!
-
 get_title <- function(src) {
   out <- src |> 
     html_element("span") |>
@@ -54,7 +52,6 @@ get_title <- function(src) {
   return(out)
 }
 
-# Autor
 get_meta <- function(src, query) {
   out <- src |> 
     html_elements("meta") |> 
@@ -90,7 +87,7 @@ get_body <- function(src) {
 }
 
 cores <- detectCores()
-pbcmlapply(
+full <- pbcmlapply(
   article_links,
   function(url) {
     tryCatch(
@@ -140,3 +137,6 @@ pbcmlapply(
   mc.cores = cores,
   mc.style = "ETA"
 )
+
+full <- tibble(do.call(rbind, full))
+write.csv(full, "sueddeutsche_full.csv")
