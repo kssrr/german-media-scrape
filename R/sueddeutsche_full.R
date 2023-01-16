@@ -10,7 +10,7 @@ library(pbmcapply)
 
 base_url <- "https://www.sueddeutsche.de/sitemapapp/sitemap/article/"
 all <- expand.grid(as.character(2020:2022), as.character(1:20)) %>% arrange(Var1)
-urls <- paste0(base_url, all$Var1, "/", all$Var2)
+sitemaps <- paste0(base_url, all$Var1, "/", all$Var2)
 
 get_urls <- function(sitemap) {
   out <- sitemap |> 
@@ -23,11 +23,11 @@ get_urls <- function(sitemap) {
 
 pb <- progress::progress_bar$new(
   format = "Trying [:bar] :percent in :eta",
-  total = 50
+  total = length(sitemaps)
 )
 
-test <- map(
-  urls[1:50],
+article_links <- map(
+  sitemaps,
   function(url) {
     pb$tick()
     tryCatch(
@@ -40,6 +40,8 @@ test <- map(
     )
   }
 )
+
+article_links <- do.call(c, article_links)
 
 # alle Artikel ziehen!
 
@@ -89,7 +91,7 @@ get_body <- function(src) {
 
 cores <- detectCores()
 pbcmlapply(
-  links,
+  article_links,
   function(url) {
     tryCatch(
       expr = {
