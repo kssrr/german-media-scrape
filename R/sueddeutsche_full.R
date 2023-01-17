@@ -1,4 +1,5 @@
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#!/usr/bin/env Rscript 
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 library(dplyr)
 library(purrr)
@@ -87,7 +88,7 @@ get_body <- function(src) {
 }
 
 cores <- detectCores()
-full <- pbcmlapply(
+full <- pbmclapply(
   article_links,
   function(url) {
     tryCatch(
