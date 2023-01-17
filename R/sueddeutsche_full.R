@@ -1,5 +1,4 @@
-#!/usr/bin/env Rscript 
-#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 library(dplyr)
 library(purrr)
@@ -18,7 +17,8 @@ get_urls <- function(sitemap) {
     html_elements("url") |> 
     html_element("loc") |> 
     html_text2()
-  if(rlang::is_empty(out)) return(NA_character_)
+  
+  if (rlang::is_empty(out)) return(NA_character_)
   return(out)
 }
 
@@ -49,7 +49,15 @@ get_title <- function(src) {
     html_element("span") |>
     html_element(xpath = '//*[@data-manual="title"]') |> 
     html_text2()
-  if(rlang::is_empty(out)) return(NA_character_)
+  
+  # There is a problem with SZ where return
+  # values get multiplied for no obvious reason.
+  # Guarding against this as well as empty returns.
+  if (rlang::is_empty(out)) 
+    return(NA_character_)
+  else if (length(out) > 1)
+    return(out[1])
+  
   return(out)
 }
 
@@ -58,7 +66,12 @@ get_meta <- function(src, query) {
     html_elements("meta") |> 
     html_element(xpath = paste0('//*[@name="', query, '"]')) |> 
     html_attr("content")
-  if(rlang::is_empty(out)) return(NA_character_)
+  
+  if (rlang::is_empty(out)) 
+    return(NA_character_)
+  else if (length(out) > 1)
+    return(out[1])
+  
   return(out)
 }
 
@@ -66,15 +79,20 @@ get_date <- function(src) {
   out <- src |> 
     html_elements("time") |> 
     xml_attr("datetime")
-  if(rlang::is_empty(out)) return(NA_character_)
+  
+  if (rlang::is_empty(out)) 
+    return(NA_character_)
+  else if (length(out) > 1)
+    return(out[1])
+  
   return(out)
 }
 
 check_paywall <- function(src) {
-  if (grepl('"page.paywall_shown":true', html_text(test2)))
-    return(1L)
+  if (grepl('"page.paywall_shown":true', html_text(src)))
+    return(T)
   else
-    return(0L)
+    return(F)
 }
 
 get_body <- function(src) {
@@ -83,7 +101,12 @@ get_body <- function(src) {
     html_element(xpath = '//*[@data-manual="paragraph"]') |> 
     html_text2() |> 
     paste(collapse = " ")
-  if(rlang::is_empty(out)) return(NA_character_)
+  
+  if (rlang::is_empty(out)) 
+    return(NA_character_)
+  else if (length(out) > 1)
+    return(out[1])
+  
   return(out)
 }
 
@@ -105,14 +128,10 @@ full <- pbmclapply(
           paywall     = check_paywall(article),
           error       = NA_character_
         )
-        out <- out %>% # get article body if there is no paywall
-          mutate(
-            body = ifelse(
-              paywall == 0,
-              get_body(article),
-              NA_character_
-            )
-          )
+        
+        out <- out |> 
+          mutate(body = ifelse(paywall, NA_character_, get_body(article)))
+        
         return(out)
       },
       error = function(e) {
