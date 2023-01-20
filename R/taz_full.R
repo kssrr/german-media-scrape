@@ -21,27 +21,24 @@ pb <- progress::progress_bar$new(
   format = "  Processing [:bar] :percent Elapsed: :elapsed Left: :eta",
   total = length(sitemaps),
 )
-article_urls <- lapply(
-  sitemaps,
-  function(url) {
-    pb$tick()
-    tryCatch(
-      expr = {
-        links <- url |>
-          read_html() |> 
-          html_elements("url") |> 
-          html_element("loc") |> 
-          html_text2()
-        
-        if (rlang::is_empty(links)) 
-          return()
-        else
-          return(links)
-      },
-      error = function(e) return()
-    )
-  }
-)
+article_urls <- lapply(sitemaps, function(url) {
+  pb$tick()
+  tryCatch(
+    expr = {
+      links <- url |>
+        read_html() |> 
+        html_elements("url") |> 
+        html_element("loc") |> 
+        html_text2()
+      
+      if (rlang::is_empty(links)) 
+        return()
+      else
+        return(links)
+    },
+    error = function(e) return()
+  ) 
+})
 
 article_urls <- as.character(do.call(c, article_urls))
 
