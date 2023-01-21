@@ -123,7 +123,6 @@ cores <- detectCores()
 faz_full <- pbmclapply(
   article_urls,
   function(url) {
-    Sys.sleep(runif(1))
     tryCatch(
       expr = {
         article <- rvest::read_html(url)
@@ -156,7 +155,7 @@ faz_full <- pbmclapply(
           keywords    = NA_character_,
           paywall     = NA_character_,
           body        = NA_character_,
-          error       = NA_character_
+          error       = e
         )
       }
     )
