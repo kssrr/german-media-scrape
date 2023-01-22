@@ -145,3 +145,4 @@ with_progress({
 })
 
 zeit_full <- tibble(do.call(rbind, zeit_full))
+write.csv(zeit_full, "zeit_full.csv")
