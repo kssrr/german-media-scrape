@@ -30,7 +30,7 @@ Or investigate pairwise correlation clusters of keywords (click to enlarge; see 
 
 Currently, all scrapes work as intended. Yet, there are multiple points where contributions or input are much appreciated:
 
-* **Code efficiency:** In all scripts, the `magrittr`-pipe operator `%>%` should be replaced with the base R `|>`. This may sometimes require rewriting small sections of code because of slight differences between the two pipes. The reasoning for doing this is that the base R pipe is slightly faster & the traceback is much cleaner.
+* **Code efficiency:** In all scripts, the `magrittr`-pipe operator `%>%` should be replaced with the base R `|>`. This may sometimes require rewriting small sections of code because of slight differences between the two pipes. The reasoning for doing this is that the base R pipe is slightly faster & the traceback is much cleaner. *Note: this should be done with R 4.2+ in mind in terms of style.*
 
 * **Generalizing parallel computations using furrr:** Currently, some scripts use `pbmcapply::pbmclapply()`, which does not work on Windows. Instead of targetting Windows separately, we should simply use the `furrr`-package which is platform-agnostic. I have implemented this in `R/taz_full.R` and this approach could simply be transferred to the other scripts. See [here](https://furrr.futureverse.org/) for an introduction to `furrr`, and [here](https://furrr.futureverse.org/articles/progress.html) for an introduction to `progressr`, which I think is a convenient solution for handling progress notifications in this case.
 
