@@ -37,6 +37,7 @@ Currently, all scrapes work as intended. Yet, there are multiple points where co
 * **General cleanup:** Here, multiple things could probably be improved:
   - Rewrite sections of code that may be ambivalent, inefficient or intransparent (especially the `full_scrape()` parts).
   - Explore potentials to make the scraping more "gentle", since we are rapidly sending high numbers of requests. 
+  - Replace `purrr`-style anonymous function shorthands with the base R equivalent (i.e. `data |> map(\(.x) lm(x ~ y, .x))` instead of `data |> map(~ lm(x ~ y, .x))`). This is optional and probably a style question, but I think now that base R supports this we should not intermix too many different syntax styles.
   
 * **Adding more news sites:** This is of course also possible and appreciated. Look to the existing scripts for some guidance. We could also think about including english-language sites at some point.
 
