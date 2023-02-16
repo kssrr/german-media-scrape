@@ -41,6 +41,8 @@ Currently, all scrapes work as intended. Yet, there are multiple points where co
   
 * **Adding more news sites:** This is of course also possible and appreciated. Look to the existing scripts for some guidance. We could also think about including english-language sites at some point.
 
+* **Adding more examples:** This data is very versatile and enables a lot of interesting analyses. More examples would always be appreciated.
+
 * **Hosting the data set:** The resulting data sets can be quite large, and it would be nice to host them somewhere so anyone interested can simply download the data without having to scrape it first.
 
 Feel free to simply create pull requests if you want to address any of this points, or to create issues if you want to contribute but need help or guidance.
