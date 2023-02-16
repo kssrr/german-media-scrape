@@ -35,7 +35,7 @@ Currently, all scrapes work as intended. Yet, there are multiple points where co
 * **Generalizing parallel computations using furrr:** Currently, some scripts use `pbmcapply::pbmclapply()`, which does not work on Windows. Instead of targetting Windows separately, we should simply use the `furrr`-package which is platform-agnostic. I have implemented this in `R/taz_full.R` and this approach could simply be transferred to the other scripts. See [here](https://furrr.futureverse.org/) for an introduction to `furrr`, and [here](https://furrr.futureverse.org/articles/progress.html) for an introduction to `progressr`, which I think is a convenient solution for handling progress notifications in this case.
 
 * **General cleanup:** Here, multiple things could probably be improved:
-  - Rewrite sections of code that may be ambivalent, inefficient or intransparent (especially the `full_scrape()` parts.
+  - Rewrite sections of code that may be ambivalent, inefficient or intransparent (especially the `full_scrape()` parts).
   - Explore potentials to make the scraping more "gentle", since we are rapidly sending high numbers of requests. 
   
 * **Adding more news sites:** This is of course also possible and appreciated. Look to the existing scripts for some guidance. We could also think about including english-language sites at some point.
