@@ -5,13 +5,18 @@
 # proceeding.
 
 # Packages (will pull a lot of dependencies):
-require("dplyr")
-require("rvest")
-require("tidyr")
-require("rvest")
-require("httr")
-require("xml2")
-require("purrr")
+
+# If you are on R version 4+ (this dependency is to be dropped):
+if (as.integer(R.version$major) == 4) 
+  devtools::install_github("kvnkuang/pbmcapply", ref = "dev")
+
+pkgs <- c(
+  "dplyr", "rvest", "tidyr", "httr", "xml2", 
+  "purrr", "furrr", "progressr", "stringr",
+  "pbmcapply", "parallel"                    # to be dropped!
+)
+
+lapply(pkgs, \(.pkg) require(.pkg, character.only = TRUE))
 
 # Getting the scripts from the repository:
 download.file(
