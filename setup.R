@@ -16,7 +16,7 @@ pkgs <- c(
   "pbmcapply", "parallel"                    # to be dropped!
 )
 
-lapply(pkgs, \(.pkg) require(.pkg, character.only = TRUE))
+lapply(pkgs, \(.x) require(.x, character.only = TRUE))
 
 # Getting the scripts from the repository:
 download.file(
