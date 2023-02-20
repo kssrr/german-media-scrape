@@ -10,7 +10,7 @@ If you are unfamiliar with git, you can copy-paste & run the `setup.R`-script, w
 
 ### Getting the data
 
-Preliminary data can be downloaded [here](https://archive.org/details/german-media-scrape_202302), at archive.org. It includes scrapes for TAZ, Zeit, Süddeutsche Zeitung, Spiegel & WELT (all articles from January 01st 2020 to December 31st 2022). The uncompressed data is around 3.5GB. Some sites lack article titles; this is due to an earlier problem & we will add them back in later versions.
+A demo data set can be downloaded [here](https://archive.org/details/german-media-scrape_202302), at archive.org. It includes scrapes for TAZ, Zeit, Süddeutsche Zeitung, Spiegel & WELT (all articles from January 01st 2020 to December 31st 2022). The uncompressed data is around 3.5GB. Some sites lack article titles; this is due to an earlier problem & we will add them back in later versions.
 
 ## Examples
 
