@@ -1,67 +1,75 @@
-# Scraping WELT retroactively since 01/2022:
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
-# If you are on R version 4.2+:
-#devtools::install_github("kvnkuang/pbmcapply", ref = "dev")
+# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 library(rvest)
 library(xml2)
 library(dplyr)
 library(tidyr)
 library(purrr)
+library(furrr)
 library(stringr)
-library(parallel)
-library(pbmcapply)
+library(progressr)
 
 # Retrieve sitemaps:
 url <- "https://www.welt.de/sitemaps/sitemap/sitemap.xml"
+patterns <- "2020|2021|2022"
 
-# The url is only a list of links to compressed .xml.gz downloads,
-# so we need to retrieve the actual sitemaps first:
-sitemap_urls <- url %>% 
-  read_html() %>% 
-  html_elements("loc") %>% 
-  html_text2() %>% 
-  .[grepl("2020|2021|2022", .)]
+# the url contains a list of download links for compressed folders holding the
+# actual sitemaps. Thus, we need to first download & unzip the archives:
 
-sitemap_names <- sitemap_urls %>% 
-  str_remove("https://www.welt.de/sitemaps/") %>% 
+# Retrieving download links:
+sitemap_urls <- 
+  url |> 
+  read_html() |> 
+  html_elements("loc") |> 
+  html_text2() |> 
+  (\(.x) .x[grepl(patterns, .x)])()
+
+sitemap_names <- 
+  sitemap_urls |> 
+  str_remove("https://www.welt.de/sitemaps/") |> 
   str_replace_all("/", "_")
 
+# Create directory to store them:
 if (dir.exists("welt_sitemaps")) {
   warning("Directory exists, overwriting...")
   unlink("welt_sitemaps/", recursive = T)
 }
 dir.create("welt_sitemaps/")
 
-# Function for parallelizing downloads: 
+# Function for parallelizing the downloads: 
+
 multi_download <- function(file_remote,       # url
                            file_local,        # destination
                            total_con = 1000L, # max concurrent connections
                            host_con  = 1000L, # max conc. cons per host
                            print = TRUE) {    # print status of request 
-  # create pool
-  pool <- curl::new_pool(total_con = total_con,
-                         host_con = host_con)
+  # create pool:
+  pool <- curl::new_pool(
+    total_con = total_con,
+    host_con = host_con
+  )
   
   # function performed on successful request
   save_download <- function(req) {
     writeBin(req$content, file_local[file_remote == req$url])
   }
-  # setup async calls
+  
+  # set up asynchronous calls:
   invisible(
     lapply(
       file_remote, function(f) 
         curl::curl_fetch_multi(f, done = save_download, pool = pool)
     )
   )
-  # all created requests are performed here
+  
+  # all created requests are performed here:
   out <- curl::multi_run(pool = pool)
   
   if (print) print(out)
   
 }
 
+# Downloading:
 multi_download(
   file_remote = sitemap_urls,
   file_local = paste0("welt_sitemaps/", sitemap_names)
@@ -70,39 +78,39 @@ multi_download(
 # Unzip:
 archives <- list.files("welt_sitemaps/")
 paths <- paste0("welt_sitemaps/", archives)
-walk(paths, ~ R.utils::gunzip(.x, overwrite = T))
+walk(paths, \(.x) R.utils::gunzip(.x, overwrite = T))
 
 # Read:
-files <- list.files("welt_sitemaps/") %>% paste0("welt_sitemaps/", .)
+files <- paste0("welt_sitemaps/", list.files("welt_sitemaps/"))
 xml_list <- map(files, read_html)
 
 # Get article links:
-xml_list <- map(xml_list, ~ html_text2(html_elements(.x, "loc")))
+xml_list <- map(xml_list, \(.x) html_text2(html_elements(.x, "loc")))
 article_urls <- as.character(do.call(c, xml_list))
+
+# Function for guarding against empty returns:
+guard <- function(x) ifelse(rlang::is_empty(x), NA_character_, x)
 
 # Functions for extracting data & metadata from the html:
 get_keywords <- function(html) {
-  out <- html |>
+  html |>
     html_elements(xpath = '//*[@name="keywords"]') |> 
-    xml_attr("content")
-  if (rlang::is_empty(out)) out <- NA_character_
-  return(out)
+    xml_attr("content") |> 
+    guard()
 }
 
 get_title <- function(src) {
-  out <- src |> 
+  src |> 
     html_element("title") |> 
-    html_text2()
-  if (rlang::is_empty(out)) return(NA_character_)
-  return(out)
+    html_text2() |> 
+    guard()
 }
 
 get_description <- function(html) {
-  out <- html |>
+  html |>
     html_elements(xpath = '//*[@name="description"]') |> 
-    xml_attr("content")
-  if (rlang::is_empty(out)) out <- NA_character_
-  return(out)
+    xml_attr("content") |> 
+    guard()
 }
 
 get_author <- function(html) {
@@ -118,11 +126,10 @@ get_author <- function(html) {
 }
 
 get_date <- function(html) {
-  out <- html |>
+  html |>
     html_elements(xpath = '//*[@name="date"]') |> 
-    xml_attr("content")
-  if (rlang::is_empty(out)) out <- NA_character_
-  return(out)
+    xml_attr("content") |> 
+    guard()
 }
 
 check_paywall <- function(html) {
@@ -130,78 +137,75 @@ check_paywall <- function(html) {
     html_text() |>
     stringr::str_extract("isAccessibleForFree(.*?),")
   
-  if (grepl("False", pw)) return(1L) else return(0L)
+  if (grepl("False", pw))
+    TRUE
+  
+  FALSE
 }
 
 get_body <- function(html) {
-  out <- html |>
+  html |>
     html_elements("p") |>
     html_text2() |>
-    head(-2)
-  out <- paste0(out, collapse = " ")
-  if (rlang::is_empty(out)) out <- NA_character_
-  return(out)
+    head(-2) |> 
+    paste0(collapse = " ") |> 
+    guard()
 }
 
 # Full scrape:
-# pbmclapply() and mclapply() don't work on Windows. See here for a "hack":
-# https://www.r-bloggers.com/2014/07/implementing-mclapply-on-windows-a-primer-on-embarrassingly-parallel-computation-on-multicore-systems-with-r/
+full_scrape <- function(url, p) {
+  p()
+  
+  tryCatch(
+    expr = {
+      article <- read_html(url)
+      
+      out <- data.frame(
+        url         = url,
+        date        = get_date(article),
+        title       = get_title(article),
+        author      = get_author(article),
+        description = get_description(article),
+        keywords    = get_keywords(article),
+        paywall     = check_paywall(article),
+        error       = NA_character_
+      ) |> 
+        mutate(body = ifelse(paywall, NA_character_, get_body(article)))
+    },
+    error = function(e) {
+      e <- as.character(e[1])
+      
+      if (length(e) > 1)
+        e <- paste(e, collapse = " ")
+      
+      data.frame(
+        url         = url,
+        date        = NA_character_,
+        title       = NA_character_,
+        author      = NA_character_,
+        description = NA_character_,
+        keywords    = NA_character_,
+        paywall     = NA_character_,
+        body        = NA_character_,
+        error       = e
+      )
+    }
+  )
+}
 
-cores <- detectCores()
-# pbmclapply = progress-bar multi-core lapply
-full <- pbmclapply(
-  article_urls,
-  function(x) {
-    tryCatch(
-      # Expression to execute "normally":
-      expr = {
-        article <- read_html(x)
-        out <- data.frame(
-          url         = x,
-          date        = get_date(article),
-          title       = get_title(article),
-          author      = get_author(article),
-          description = get_description(article),
-          keywords    = get_keywords(article),
-          paywall     = check_paywall(article),
-          error       = NA_character_
-        )
-        
-        out <- out %>% 
-          mutate(
-            body = ifelse(
-              paywall == 0,
-              get_body(article),
-              NA_character_
-            )
-          )
-        return(out)
-      },
-      # Function to execute if an error is caught:
-      error = function(e) {
-        e <- as.character(e[1])
-        
-        if (length(e) > 1)
-          e <- paste(e, collapse = " ")
-        
-        out <- data.frame(
-          url         = x,
-          date        = NA_character_,
-          title       = NA_character_,
-          author      = NA_character_,
-          description = NA_character_,
-          keywords    = NA_character_,
-          paywall     = NA_character_,
-          body        = NA_character_,
-          error       = e
-        )
-        return(out)
-      }
-    )
-  },
-  mc.cores = cores,
-  mc.style = "ETA" # show estimated time to completion
+plan(multisession, workers = parallel::detectCores())
+
+handlers(
+  handler_progress(
+    format = "[:bar] Remaining: :eta"
+  )
 )
 
-full <- tibble(do.call(rbind, full))
-write.csv(full, "welt_full.csv")
+with_progress({
+  p <- progressor(steps = length(article_urls))
+  welt <- article_urls |> future_map(\(.x) full_scrape(.x, p = p))
+})
+
+welt |> 
+  bind_rows() |> View()
+  write.csv("welt.csv")

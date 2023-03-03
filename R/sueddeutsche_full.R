@@ -144,8 +144,8 @@ full_scrape <- function(url, p) {
 }
 
 with_progress({
-  p <- progressor(steps = length(article_urls[1:50]))
-  sueddeutsche <- article_urls[1:50] |> future_map(\(.x) full_scrape(.x, p = p))
+  p <- progressor(steps = length(article_urls))
+  sueddeutsche <- article_urls |> future_map(\(.x) full_scrape(.x, p = p))
 })
 
 sueddeutsche |> 
