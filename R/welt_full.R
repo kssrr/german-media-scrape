@@ -99,8 +99,8 @@ get_keywords <- function(html) {
     guard()
 }
 
-get_title <- function(src) {
-  src |> 
+get_title <- function(html) {
+  html |> 
     html_element("title") |> 
     html_text2() |> 
     guard()
