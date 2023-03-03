@@ -6,17 +6,14 @@
 
 # Packages (will pull a lot of dependencies):
 
-# If you are on R version 4+ (this dependency is to be dropped):
-if (as.integer(R.version$major) == 4 && as.numeric(R.version$minor) > 2) 
-  devtools::install_github("kvnkuang/pbmcapply", ref = "dev")
-
 pkgs <- c(
   "dplyr", "rvest", "tidyr", "httr", "xml2", 
-  "purrr", "furrr", "progressr", "stringr",
-  "pbmcapply", "parallel"                    # to be dropped!
+  "purrr", "furrr", "progressr", "stringr"
 )
 
-lapply(pkgs, \(.x) require(.x, character.only = TRUE))
+invisible(
+  lapply(pkgs, \(.x) require(.x, character.only = TRUE))
+)
 
 # Getting the scripts from the repository:
 download.file(
