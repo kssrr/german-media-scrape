@@ -207,5 +207,5 @@ with_progress({
 })
 
 welt |> 
-  bind_rows() |> View()
+  bind_rows() |>
   write.csv("welt.csv")
