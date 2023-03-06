@@ -50,16 +50,13 @@ multi_download <- function(file_remote,       # url
   )
   
   # function performed on successful request
-  save_download <- function(req) {
+  save_download <- function(req)
     writeBin(req$content, file_local[file_remote == req$url])
-  }
   
   # set up asynchronous calls:
-  invisible(
-    lapply(
-      file_remote, function(f) 
-        curl::curl_fetch_multi(f, done = save_download, pool = pool)
-    )
+  walk(
+    file_remote,
+    \(.x) curl::curl_fetch_multi(.x, done = save_download, pool = pool)
   )
   
   # all created requests are performed here:
@@ -116,13 +113,14 @@ get_description <- function(html) {
 get_author <- function(html) {
   out <- html |>
     html_elements(".c-author__link") |>
-    html_text2()
-  out <- paste0(out, collapse = ", ")
-  if (rlang::is_empty(out)) 
-    out <- NA_character_
+    html_text2() |> 
+    paste0(collapse = ", ") |> 
+    guard()
+  
   if (grepl("^,", out)) 
     out <- str_remove(out, "^, ")
-  return(out)
+  
+  out
 }
 
 get_date <- function(html) {
