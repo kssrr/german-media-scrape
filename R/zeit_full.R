@@ -10,18 +10,19 @@ library(furrr)
 library(progressr)
 
 url <- "https://www.zeit.de/gsitemaps/index.xml"
+patterns <- "2020|2021|2022"
 
 sitemaps <- url |> 
   httr::GET() |> 
   rvest::read_html() |> 
   html_elements("loc") |> 
-  html_text2()
-
-sitemaps <- sitemaps[grepl("2020|2021|2022", sitemaps)]
+  html_text2() |> 
+  (\(.x) .x[grepl(patterns, .x)])()
 
 # Get article urls:
 get_article_urls <- function(x, p) {
   p()
+  
   x |> 
     httr::GET() |> 
     read_html() |> 
@@ -40,41 +41,34 @@ handlers(
 
 with_progress({
   p <- progressor(steps = length(sitemaps))
-  article_urls <- sitemaps |> future_map(~ get_article_urls(.x, p = p))
+  article_urls <- sitemaps |> future_map(\(.x) get_article_urls(.x, p = p))
 })
 
 article_urls <- do.call(c, article_urls)
 
 # Functions for retrieval from html:
-check2 <- function(x) ifelse(rlang::is_empty(x), NA_character_, x)
+guard <- function(x) ifelse(rlang::is_empty(x), NA_character_, x)
 
 get_meta <- function(src, query) {
   src |> 
     html_elements(xpath = paste0('//*[@name="', query, '"]')) |>
     xml_attr("content") |> 
-    check2()
+    guard()
 }
 
 get_title <- function(src) {
   src |> 
     html_element("title") |> 
     html_text2() |> 
-    check2()
+    guard()
 }
 
 get_author <- function(src) {
   src |> 
     html_elements(xpath = '//a[@rel="author"]') |> 
     html_text2() |> 
-    check2()
+    guard()
 }
-
-# check_paywall <- function(src) {
-#   if (grepl('"paywall": "paid"|"paywall": "register"', src)) 
-#     TRUE
-#   else
-#     FALSE
-# }
 
 check_paywall <- function(src) 
   ifelse(grepl('"paywall": "paid"|"paywall": "register"', src), TRUE, FALSE)
@@ -83,7 +77,7 @@ get_body <- function(src) {
   out <- src |> 
     html_elements(xpath = '//p[@class="paragraph article__item"]') |> 
     html_text2() |> 
-    check2()
+    guard()
   
   if (length(out) > 1) out <- paste(out, collapse = " ")
     
@@ -94,7 +88,7 @@ get_author <- function(src) {
   src |> 
     html_elements(xpath = '//a[@rel="author"]') |> 
     html_text2() |> 
-    check2()
+    guard()
 }
 
 # Full scrape: 
@@ -141,7 +135,7 @@ full_scrape <- function(url, p) {
 
 with_progress({
   p <- progressor(steps = length(article_urls))
-  zeit_full <- article_urls |> future_map(~ full_scrape(.x, p = p))
+  zeit_full <- article_urls |> future_map(\(.x) full_scrape(.x, p = p))
 })
 
 zeit_full <- tibble(do.call(rbind, zeit_full))
