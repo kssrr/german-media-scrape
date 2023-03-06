@@ -110,9 +110,9 @@ get_title <- function(src) {
 
 check_paywall <- function(src) {
   if (grepl("paywall:'true'", src)) 
-    return(TRUE)
-  else
-    return(FALSE)
+    TRUE
+  
+  FALSE
 }
 
 get_date <- function(src) {
@@ -127,8 +127,8 @@ get_body <- function(src) {
     html_text2() |>  
     str_extract('"articleBody":"(.*)\",\"dateP') |>  
     mgsub::mgsub(
-      c('.*:\"', '\",\"dateP$'),
-      rep("", 2)
+      pattern = c('.*:\"', '\",\"dateP$'),
+      replacement = rep("", 2)
     ) |> 
     guard()
 }
