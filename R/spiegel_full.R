@@ -48,12 +48,8 @@ article_urls <- do.call(c, article_urls)
 # Functions for getting metadata & body from article html:
 guard <- function(x) ifelse(rlang::is_empty(x), NA_character_, x)
 
-check_paywall <- function(html) { 
-  if (grepl('paywall":\\{"attributes":\\{"is_active":true\\}', html)) 
-    TRUE
-  
-  FALSE
-}
+check_paywall <- function(html)
+  grepl('paywall":\\{"attributes":\\{"is_active":true\\}', html) 
 
 get_title <- function(src) {
   src |> 

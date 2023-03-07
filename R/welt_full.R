@@ -134,11 +134,8 @@ check_paywall <- function(html) {
   pw <- html |>
     html_text() |>
     stringr::str_extract("isAccessibleForFree(.*?),")
-  
-  if (grepl("False", pw))
-    TRUE
-  
-  FALSE
+
+  grepl("False", pw)
 }
 
 get_body <- function(html) {

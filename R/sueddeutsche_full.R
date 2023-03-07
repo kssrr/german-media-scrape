@@ -90,11 +90,8 @@ get_date <- function(src) {
     guard()
 }
 
-check_paywall <- function(src) {
-  if (grepl('"page.paywall_shown":true', html_text(src)))
-    TRUE
-  FALSE
-}
+check_paywall <- function(src)
+  grepl('"page.paywall_shown":true', html_text(src))
 
 get_body <- function(src) {
   src |>

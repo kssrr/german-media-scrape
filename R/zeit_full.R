@@ -71,7 +71,7 @@ get_author <- function(src) {
 }
 
 check_paywall <- function(src) 
-  ifelse(grepl('"paywall": "paid"|"paywall": "register"', src), TRUE, FALSE)
+  grepl('"paywall": "paid"|"paywall": "register"', src)
 
 get_body <- function(src) {
   out <- src |> 

@@ -108,12 +108,7 @@ get_title <- function(src) {
     guard()
 }
 
-check_paywall <- function(src) {
-  if (grepl("paywall:'true'", src)) 
-    TRUE
-  
-  FALSE
-}
+check_paywall <- function(src) grepl("paywall:'true'", src) 
 
 get_date <- function(src) {
   out <- src |> 
