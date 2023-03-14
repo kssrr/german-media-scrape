@@ -28,7 +28,7 @@ try_sitemaps <- function(url, p) {
   p()
   
   tryCatch(
-    expr ={
+    expr = {
       url |> 
         rvest::read_html() |> 
         get_urls()
@@ -101,48 +101,58 @@ get_body <- function(src) {
     html_text2()
 }
 
-full_scrape <- function(url, p) {
-  p()
-    
+# Full scrape
+
+scrape_article <- function(url) {
+  article <- read_html(httr::GET(url))
+  
+  out <- data.frame(
+    url         = url,
+    title       = get_title(article),
+    date        = get_date(article), 
+    description = get_meta(article, "description"),
+    keywords    = get_meta(article, "keywords"),
+    author      = get_meta(article, "author"),
+    paywall     = check_paywall(article),
+    body        = NA_character_,
+    error       = NA_character_
+  ) 
+  
+  # retrieve article body if no paywall:
+  out$body <- ifelse(out$paywall, out$body, get_body(article))
+  
+  out
+}
+
+# This is what to do if an error occurs:
+error_handler <- function(url, error_obj) {
+  # log url & error message:
+  msg <- as.character(error_obj$message)
+  df <- data.frame(url = url, error = msg)
+
+  # fill everything else with NA:
+  to_fill <- c(
+    "title", "author", "date", "description",
+    "keywords", "paywall", "body"
+  )
+  df[, to_fill] <- NA_character_
+
+  df
+}
+
+# ...putting it together:
+scrape_safely <- function(url, p) {
+  p() 
+  
   tryCatch(
-    expr = {
-      article <- rvest::read_html(url)
-        
-      data.frame(
-        url         = url,
-        date        = get_date(article),
-        title       = get_title(article),
-        author      = get_meta(article, "author"),
-        description = get_meta(article, "description"),
-        keywords    = get_meta(article, "keywords"),
-        paywall     = check_paywall(article),
-        error       = NA_character_
-      ) |> 
-        mutate(body = ifelse(paywall, NA_character_, get_body(article)))
-    },
-    error = function(e) {
-      e <- as.character(e[1])
-      if (length(e) > 1)
-        e <- paste(e, collapse = " ")
-        
-      data.frame(
-        url         = url,
-        date        = NA_character_,
-        title       = NA_character_,
-        author      = NA_character_,
-        description = NA_character_,
-        keywords    = NA_character_,
-        paywall     = NA_character_,
-        error       = e,
-        body        = NA_character_
-      )
-    }
+    expr = scrape_article(url), 
+    error = \(e) error_handler(url = url, error_obj = e)
   )
 }
 
 with_progress({
   p <- progressor(steps = length(article_urls))
-  sueddeutsche <- article_urls |> future_map(\(.x) full_scrape(.x, p = p))
+  sueddeutsche <- article_urls |> future_map(\(.x) scrape_safely(.x, p = p))
 })
 
 sueddeutsche |> 
