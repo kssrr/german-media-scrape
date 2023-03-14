@@ -102,7 +102,7 @@ get_author <- function(src) {
 }
 
 get_title <- function(src) {
-  out <- src |> 
+  src |> 
     html_element("title") |> 
     html_text2() |> 
     guard()
@@ -111,14 +111,14 @@ get_title <- function(src) {
 check_paywall <- function(src) grepl("paywall:'true'", src) 
 
 get_date <- function(src) {
-  out <- src |> 
+  src |> 
     html_elements(xpath = '//time[@class="atc-MetaTime"]') |> 
     xml_attr("datetime") |> 
     guard()
 }
 
 get_body <- function(src) {
-  out <- src |> 
+  src |> 
     html_text2() |>  
     str_extract('"articleBody":"(.*)\",\"dateP') |>  
     mgsub::mgsub(
