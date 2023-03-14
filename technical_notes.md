@@ -24,7 +24,7 @@ https://www.zeit.de/gsitemaps/index.xml?date=2023-03-14&unit=days&period=1
 
 First, we retrieve this archive of sitemaps:
 
-```{R}
+```{r}
 # Load necessary packages first:
 library(xml2)
 library(dplyr)
@@ -52,7 +52,7 @@ sitemaps <- url |>
 
 Now, we have a character vector holding the URLs of the actual sitemaps:
 
-```{R}
+```{r}
 head(sitemaps)
 #> [1] "https://www.zeit.de/gsitemaps/index.xml?date=2020-01-01&unit=days&period=1"
 #> [2] "https://www.zeit.de/gsitemaps/index.xml?date=2020-01-02&unit=days&period=1"
