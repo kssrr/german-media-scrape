@@ -32,17 +32,3 @@ Or investigate pairwise correlation clusters of keywords (click to enlarge; see 
 
 *Special thanks to the [University of Münster](https://www.uni-muenster.de/de/) for providing us with additional computational resources for this project.*
 
-## Contributing
-
-Currently, all scrapes work as intended. Yet, there are multiple points where contributions or input are much appreciated:
-
-* **General cleanup:** Here, multiple things could probably be improved:
-  - Rewrite sections of code that may be ambivalent, inefficient or intransparent (especially the `full_scrape()` parts).
-  - Explore potentials to make the scraping more "gentle", since we are rapidly sending high numbers of requests. 
-  - Replace `purrr`-style anonymous function shorthands with the base R equivalent (i.e. `data |> map(\(.x) lm(x ~ y, .x))` instead of `data |> map(~ lm(x ~ y, .x))`). This is optional and probably a style question, but I think now that base R supports this we should not intermix too many different syntax styles.
-  
-* **Adding more news sites:** This is of course also possible and appreciated. Look to the existing scripts for some guidance. We could also think about including english-language sites at some point.
-
-* **Adding more examples:** This data is very versatile and enables a lot of interesting analyses. More examples would always be appreciated.
-
-Feel free to simply create pull requests if you want to address any of this points, or to create issues if you want to contribute but need help or guidance.
