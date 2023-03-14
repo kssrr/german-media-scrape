@@ -1,4 +1,4 @@
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 library(dplyr)
 library(tidyr)
@@ -38,15 +38,18 @@ get_article_urls <- function(sitemap, p) {
 # furrr: https://furrr.futureverse.org/
 # progressr: https://furrr.futureverse.org/articles/progress.html
 plan(multisession, workers = parallel::detectCores())
+
 handlers(
   handler_progress(
     format = "[:bar] Remaining: :eta"
   )
 )
+
 with_progress({
   p <- progressor(steps = length(sitemaps))
   article_urls <- sitemaps |> future_map(~ get_article_urls(.x, p = p))
 })
+
 article_urls <- do.call(c, article_urls)
 
 # Functions for retrieval from html:
@@ -102,51 +105,58 @@ get_body <- function(src) {
 }
 
 # Full scrape
-set.seed(123) # not really necessary, only to avoid warnings.
-full_scrape <- function(url, p) {
-  p()
-  Sys.sleep(runif(1))
+scrape_article <- function(url) {
+  article <- read_html(httr::GET(url))
+  
+  out <- data.frame(
+    url         = url,
+    title       = get_title(article),
+    date        = get_date(article),
+    date_alt    = NA_character_,
+    description = get_meta(article, "description"),
+    keywords    = get_meta(article, "keywords"),
+    author      = get_meta(article, "author"),
+    body        = get_body(article),
+    error       = NA_character_
+  ) 
+
+  if (is.na(out$date))
+    out$date_alt <- get_date2(article)
+  
+  out
+}
+
+# This is what to do if an error occurs:
+error_handler <- function(url, error_obj) {
+  # log url & error message:
+  msg <- as.character(error_obj$message)
+  df <- data.frame(url = url, error = msg)
+
+  # fill everything else with NA:
+  to_fill <- c(
+    "title", "author", "date", "date_alt",
+    "description", "keywords", "paywall", "body"
+  )
+  df[, to_fill] <- NA_character_
+
+  df
+}
+
+# ...putting it together:
+scrape_safely <- function(url, p) {
+  p() 
+  
   tryCatch(
-    expr = {
-      article <- rvest::read_html(httr::GET(url))
-      
-      data.frame(
-        url         = url,
-        date        = get_date(article),
-        date_alt    = NA_character_,
-        title       = get_title(article),
-        author      = get_meta(article, "author"),
-        description = get_meta(article, "description"),
-        keywords    = get_meta(article, "keywords"),
-        body        = get_body(article),
-        error       = NA_character_
-      ) |> 
-        mutate(date_alt = ifelse(is.na(date), get_date2(article), date_alt))
-    },
-    error = function(e) {
-      e <- as.character(e[1])
-      if (length(e) > 1)
-        e <- paste(e, collapse = " ")
-      
-      data.frame(
-        url         = url,
-        date        = NA_character_,
-        date_alt    = NA_character_,
-        title       = NA_character_,
-        author      = NA_character_,
-        description = NA_character_,
-        keywords    = NA_character_,
-        body        = NA_character_,
-        error       = e
-      )
-    }
+    expr = scrape_article(url), 
+    error = \(e) error_handler(url = url, error_obj = e)
   )
 }
 
 with_progress({
   p <- progressor(steps = length(article_urls))
-  taz_full <- article_urls |> future_map(~ full_scrape(.x, p = p))
+  taz_full <- article_urls |> future_map(\(.x) scrape_safely(.x, p = p))
 })
+
 taz_full <- tibble(do.call(rbind, taz_full))
 
 # Unifying date column from the freely extracted dates. Ideally,
