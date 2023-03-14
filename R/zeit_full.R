@@ -128,8 +128,8 @@ error_handler <- function(url, error_obj) {
 
   # fill everything else with NA:
   to_fill <- c(
-      "title", "author", "date", "description",
-      "keywords", "paywall", "body"
+    "title", "author", "date", "description",
+    "keywords", "paywall", "body"
   )
   df[, to_fill] <- NA_character_
 
