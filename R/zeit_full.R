@@ -1,12 +1,12 @@
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#!/usr/bin/env Rscript
 
+library(xml2)
 library(dplyr)
 library(tidyr)
 library(rvest)
-library(xml2)
-library(stringr)
 library(purrr)
 library(furrr)
+library(stringr)
 library(progressr)
 
 url <- "https://www.zeit.de/gsitemaps/index.xml"
@@ -17,7 +17,7 @@ sitemaps <- url |>
   rvest::read_html() |> 
   html_elements("loc") |> 
   html_text2() |> 
-  (\(.x) .x[grepl(patterns, .x)])()
+  grep(patterns, x = _, value = TRUE)
 
 # Get article urls:
 get_article_urls <- function(x, p) {
@@ -70,8 +70,10 @@ get_author <- function(src) {
     guard()
 }
 
-check_paywall <- function(src) 
-  grepl('"paywall": "paid"|"paywall": "register"', src)
+check_paywall <- function(src) {
+    patterns <- c('"paywall": "paid"', '"paywall": "register"')
+    grepl(paste0(patterns, collapse = "|"), src)
+}
 
 get_body <- function(src) {
   out <- src |> 
@@ -92,50 +94,61 @@ get_author <- function(src) {
 }
 
 # Full scrape: 
-# "news" articles are mostly only agency copy-pastes...?
+# "news" articles are mostly only agency copy-pastes...? 
+# We could probably exclude them...
 #length(article_urls[!grepl("news", article_urls)])
 
-full_scrape <- function(url, p) {
-  p()
+# This will be executed for every article url:
+scrape_article <- function(url) {
+  article <- read_html(httr::GET(url))
+  
+  out <- data.frame(
+    url         = url,
+    title       = get_title(article),
+    date        = get_meta(article, "date"),
+    description = get_meta(article, "description"),
+    keywords    = get_meta(article, "keywords"),
+    author      = get_author(article),
+    paywall     = check_paywall(article),
+    body        = NA_character_,
+    error       = NA_character_
+  ) 
+  
+  # retrieve article body if no paywall:
+  out$body <- ifelse(out$paywall, out$body, get_body(article))
+  
+  out
+}
+
+# This is what to do if an error occurs:
+error_handler <- function(url, error_obj) {
+  # log url & error message:
+  msg <- as.character(error_obj$message)
+  df <- data.frame(url = url, error = msg)
+
+  # fill everything else with NA:
+  to_fill <- c(
+      "title", "author", "date", "description",
+      "keywords", "paywall", "body"
+  )
+  df[, to_fill] <- NA_character_
+
+  df
+}
+
+# ...putting it together:
+scrape_safely <- function(url, p) {
+  p() 
+  
   tryCatch(
-    expr = {
-      article <- read_html(httr::GET(url))
-      
-      data.frame(
-        url         = url,
-        title       = get_title(article),
-        description = get_meta(article, "description"),
-        keywords    = get_meta(article, "keywords"),
-        author      = get_author(article),
-        paywall     = check_paywall(article),
-        body        = NA_character_,
-        error       = NA_character_
-      ) |> 
-        mutate(body = ifelse(paywall, NA_character_, get_body(article)))
-    },
-    error = function(e) {
-      e <- as.character(e[1])
-      if (length(e) > 1)
-        e <- paste(e, collapse = " ")
-      
-      data.frame(
-        url         = url,
-        date        = NA_character_,
-        title       = NA_character_,
-        author      = NA_character_,
-        description = NA_character_,
-        keywords    = NA_character_,
-        paywall     = NA_character_,
-        body        = NA_character_,
-        error       = e
-      )
-    }
+    expr = scrape_article(url), 
+    error = \(e) error_handler(url = url, error_obj = e)
   )
 }
 
 with_progress({
   p <- progressor(steps = length(article_urls))
-  zeit_full <- article_urls |> future_map(\(.x) full_scrape(.x, p = p))
+  zeit_full <- future_map(article_urls, \(.x) scrape_safely(.x, p = p))
 })
 
 zeit_full <- tibble(do.call(rbind, zeit_full))
