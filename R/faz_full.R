@@ -42,7 +42,7 @@ get_article_urls <- function(url, p) {
     html_text2()
   
   # Exit if specified dates not found:
-  if (!TRUE %in% grepl("2022|2021|2020", dates)) return()
+  if (!any(grepl("2022|2021|2020", dates))) return()
   
   # Otherwise return the urls for articles that have the specified date:
   urlset <- src |> html_elements("url")
