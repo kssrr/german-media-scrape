@@ -85,9 +85,9 @@ map_progress <- function(x, f, parallel = FALSE) {
   else
     mapper_fun <- purrr::map
 
-  f_progress <- function(x, p) {
+  f_progress <- function(..., p) {
     p()
-    f(x)
+    f(...)
   }
 
   with_progress({
