@@ -22,7 +22,7 @@ sitemap_urls <-
   read_html() |> 
   html_elements("loc") |> 
   html_text2() |> 
-  (\(.x) .x[grepl(patterns, .x)])()
+  grep(patterns, x = _, value = TRUE)
 
 sitemap_names <- 
   sitemap_urls |> 
@@ -77,13 +77,57 @@ archives <- list.files("welt_sitemaps/")
 paths <- paste0("welt_sitemaps/", archives)
 walk(paths, \(.x) R.utils::gunzip(.x, overwrite = T))
 
+# mapper functions:
+map_progress <- function(x, f, parallel = FALSE) {
+
+  if (parallel)
+    mapper_fun <- furrr::future_map
+  else
+    mapper_fun <- purrr::map
+
+  f_progress <- function(x, p) {
+    p()
+    f(x)
+  }
+
+  with_progress({
+    p <- progressor(steps = length(x))
+    out <- mapper_fun(x, \(.x) f_progress(.x, p = p))
+  })
+
+  out
+  
+}
+
+handlers(
+  handler_progress(
+    format = "[:bar] Remaining: :eta"
+  )
+)
+
 # Read:
+# This can not be parallelized, since xml2-objects can not be exported
+# to other R processes because they hold external pointers unique to the
+# R process they were created on.
+# https://stackoverflow.com/questions/55810140/parallel-processing-xml-nodes-with-r#55843269
 files <- paste0("welt_sitemaps/", list.files("welt_sitemaps/"))
-xml_list <- map(files, read_html)
+xml_list <- map_progress(files, xml2::read_html)
 
 # Get article links:
-xml_list <- map(xml_list, \(.x) html_text2(html_elements(.x, "loc")))
-article_urls <- as.character(do.call(c, xml_list))
+get_article_urls <- function(src) {
+  src |>
+    html_elements("loc") |>
+    html_text2()
+}
+
+article_urls <-
+  xml_list |>
+  map_progress(get_article_urls) |>
+  reduce(c) |>
+  as.character()
+
+# Drop topic collections:
+article_urls <- article_urls[!grepl("/themen/", article_urls)]
 
 # Function for guarding against empty returns:
 guard <- function(x) ifelse(rlang::is_empty(x), NA_character_, x)
@@ -148,59 +192,54 @@ get_body <- function(html) {
 }
 
 # Full scrape:
-full_scrape <- function(url, p) {
-  p()
+scrape_article <- function(url) {
+  article <- read_html(url)
   
+  article <- read_html(url)
+  
+  out <- data.frame(
+    url         = url,
+    date        = get_date(article),
+    title       = get_title(article),
+    author      = get_author(article),
+    description = get_description(article),
+    keywords    = get_keywords(article),
+    paywall     = check_paywall(article),
+    body        = NA_character_, 
+    error       = NA_character_
+  ) 
+
+  out$body <- ifelse(out$paywall, out$body, get_body(article))
+
+  out
+}
+
+error_handler <- function(url, error_obj) {
+  msg <- as.character(error_obj$message)
+  out <- data.frame(url = url, error = msg)
+
+  to_fill <- c(
+    "title", "author", "date", "description",
+    "keywords", "paywall", "body"
+  )
+  out[, to_fill] <- NA_character_
+
+  out
+}
+
+scrape_safely <- function(url) {
   tryCatch(
-    expr = {
-      article <- read_html(url)
-      
-      out <- data.frame(
-        url         = url,
-        date        = get_date(article),
-        title       = get_title(article),
-        author      = get_author(article),
-        description = get_description(article),
-        keywords    = get_keywords(article),
-        paywall     = check_paywall(article),
-        error       = NA_character_
-      ) |> 
-        mutate(body = ifelse(paywall, NA_character_, get_body(article)))
-    },
-    error = function(e) {
-      e <- as.character(e[1])
-      
-      if (length(e) > 1)
-        e <- paste(e, collapse = " ")
-      
-      data.frame(
-        url         = url,
-        date        = NA_character_,
-        title       = NA_character_,
-        author      = NA_character_,
-        description = NA_character_,
-        keywords    = NA_character_,
-        paywall     = NA_character_,
-        body        = NA_character_,
-        error       = e
-      )
-    }
+    expr = scrape_article(url),
+    error = \(e) error_handler(url = url, error_obj = e)
   )
 }
 
+# Starting parallel session:
 plan(multisession, workers = parallel::detectCores())
 
-handlers(
-  handler_progress(
-    format = "[:bar] Remaining: :eta"
-  )
-)
-
-with_progress({
-  p <- progressor(steps = length(article_urls))
-  welt <- article_urls |> future_map(\(.x) full_scrape(.x, p = p))
-})
+welt <- map_progress(article_urls, scrape_safely, parallel = TRUE)
 
 welt |> 
   bind_rows() |>
+  tibble() |> 
   write.csv("welt.csv")
