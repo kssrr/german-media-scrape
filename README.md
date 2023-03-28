@@ -8,9 +8,19 @@ git clone https://github.com/kssrr/german-media-scrape
 
 If you are unfamiliar with git, you can copy-paste & run the `setup.R`-script, which will also install the dependencies for you. 
 
-### Getting the data
+## Getting the data
 
-A demo data set can be downloaded [here](https://archive.org/details/german-media-scrape_202302), at archive.org. It includes scrapes for TAZ, Zeit, Süddeutsche Zeitung, Spiegel & WELT (all articles from January 01st 2020 to December 31st 2022). The uncompressed data is around 3.5GB. Some sites lack article titles; this is due to an earlier problem & we will add them back in later versions.
+[Direct download (compressed .tar.gz)](https://archive.org/download/german-media-scrape_202302/data.tar.gz)
+
+We assembled a demo-dataset that includes all articles between January 1st 2020 and December 31st 2023 from the media outlets taz, Zeit, Süddeutsche, Spiegel & Welt. The data set includes a little over one million German-language news articles (uncompressed ~3.5 GB) of varying length. Article titles are missing for some sites due to an earlier problem with the scrapes; we plan to add them in later versions. The data can be downloaded [here](https://archive.org/details/german-media-scrape_202302).
+
+The data set includes broad coverage of various impactful events that could be fruitfully analysed, like the German federal election 2021, COVID-19, the 2022 Soccer World Cup, and of course the Russian invasion of Ukraine in early 2022. 
+
+Theoretically, the scripts could also be used to scrape data going back as long as the newspapers' archives allow; simply change the corresponding code early on in the scripts where the dates (years) to scrape are specified.
+
+## Collaboration
+
+If you decide to use the data or the code, please contact us so we can boast about it here :)
 
 ## Examples
 
