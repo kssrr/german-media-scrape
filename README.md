@@ -16,15 +16,16 @@ We assembled a demo-dataset that includes all articles between January 1st 2020 
 
 The data set includes broad coverage of various impactful events that could be fruitfully analysed, like the German federal election 2021, COVID-19, the 2022 Soccer World Cup, and of course the Russian invasion of Ukraine in early 2022. 
 
-Theoretically, the scripts could also be used to scrape data going back as long as the newspapers' archives allow; simply change the corresponding code early on in the scripts where the dates (years) to scrape are specified.
+Theoretically, the scripts could also be used to scrape data going back as far as the newspapers' archives allow; simply change the corresponding code early on in the scripts where the dates (years) to scrape are specified.
+
 
 ## Collaboration
 
 If you decide to use the data or the code, please contact us so we can boast about it here :)
 
-## Examples
+## Example usage
 
-You can do a lot of interesting exploratory analysis with this kind of data, for example examine reporting on political parties:
+You can do a lot of interesting basic exploratory analysis with this kind of data, for example examine reporting on political parties:
 
 ![Reporting on political parties on two German news websites.](https://user-images.githubusercontent.com/121236725/210736182-01f7a3f2-3f72-420c-b03e-8cc252426dba.png)
 
