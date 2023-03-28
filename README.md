@@ -1,6 +1,6 @@
 # Scraping German News Websites
 
-Scripts to scrape large German news websites, used for my project on automating news media bias detection. To get the code, simply run 
+Scripts to scrape large German news websites & resulting data set of one million German news articles from 01.01.2020 to 31.12.2020. To get the code, simply run 
 
 ```
 git clone https://github.com/kssrr/german-media-scrape
