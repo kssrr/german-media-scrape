@@ -21,7 +21,7 @@ Theoretically, the scripts could also be used to scrape data going back as far a
 
 ## Collaboration
 
-If you decide to use the data or the code, please contact me via mail at kssrr@tuta.io so we can boast about it here :)
+If you decide to use the data or the code, please contact me via mail at kssrr@tuta.io so we can boast about it :)
 
 ## Example usage
 
