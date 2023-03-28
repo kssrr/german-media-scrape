@@ -12,7 +12,7 @@ If you are unfamiliar with git, you can copy-paste & run the `setup.R`-script, w
 
 [Direct download (compressed .tar.gz)](https://archive.org/download/german-media-scrape_202302/data.tar.gz)
 
-We assembled a demo-dataset that includes all articles between January 1st 2020 and December 31st 2023 from the media outlets taz, Zeit, Süddeutsche, Spiegel & Welt. The data set includes a little over one million German-language news articles (uncompressed ~3.5 GB) of varying length. Article titles are missing for some sites due to an earlier problem with the scrapes; we plan to add them in later versions. The data is hosted [here](https://archive.org/details/german-media-scrape_202302).
+We assembled a demo-dataset that includes all articles between January 1st 2020 and December 31st 2022 from the media outlets taz, Zeit, Süddeutsche, Spiegel & Welt. The data set includes a little over one million German-language news articles (uncompressed ~3.5 GB) of varying length. Article titles are missing for some sites due to an earlier problem with the scrapes; we plan to add them in later versions. The data is hosted [here](https://archive.org/details/german-media-scrape_202302).
 
 The data set includes broad coverage of various impactful events that could be fruitfully analysed, like the German federal election 2021, COVID-19, the 2022 Soccer World Cup, and of course the Russian invasion of Ukraine in early 2022. 
 
