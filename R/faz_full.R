@@ -1,5 +1,3 @@
-#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
 library(xml2)
 library(dplyr)
 library(tidyr)
@@ -29,33 +27,22 @@ sitemaps <- url |>
 # manually using the lastmod. This procedure is very "rough" and can probably
 # be optimized.
 
-get_article_urls <- function(url, p) {
+get_article_urls <- function(url, p = NULL) {
+
   p()
   
-  # Read sitemap html:
-  src <- read_html(url)
-  
-  # Check dates for all articles in sitemap:
-  dates <- src |> 
-    html_elements("url") |> 
-    html_elements("lastmod") |> 
-    html_text2()
-  
-  # Exit if specified dates not found:
-  if (!any(grepl("2022|2021|2020", dates))) return()
-  
-  # Otherwise return the urls for articles that have the specified date:
-  urlset <- src |> html_elements("url")
-  link <- urlset |> 
-    html_element("loc") |> 
-    html_text2()
-  date <- urlset |> 
-    html_elements("lastmod") |> 
-    html_text2()
-  articles <- data.frame(cbind(link, date))
-  articles <- articles |> filter(grepl("2022|2021|2020", date))
-  
-  articles$link
+  urlset <- url |> read_html() |> html_elements("url")
+  years <- paste0(c("2020", "2021", "2022"), collapse = "|")
+
+  articles <- data.frame(
+    url = html_text2(html_element(urlset, "loc")),
+    date = html_text2(html_elements(urlset, "lastmod"))
+  )
+
+  if (!any(grepl(years, articles$date)))
+    return()
+
+  articles$url[grepl(years, articles$date)]
 }
 
 plan(multisession, workers = parallel::detectCores())
