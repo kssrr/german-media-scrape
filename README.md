@@ -18,11 +18,6 @@ The data set includes broad coverage of various impactful events that could be f
 
 Theoretically, the scripts could also be used to scrape data going back as far as the newspapers' archives allow; simply change the corresponding code early on in the scripts where the dates (years) to scrape are specified.
 
-
-## Collaboration
-
-If you decide to use the data or the code, please contact me via mail at kssrr@tuta.io so we can boast about it :)
-
 ## Example usage
 
 An elaborate example (topic modelling) is shown [here](https://github.com/kssrr/german-media-scrape/blob/master/topic_modelling_example/topic_modelling.md), but you can also do a lot of interesting, more basic exploratory analysis with this kind of data, for example examine reporting on political parties:
