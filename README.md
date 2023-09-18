@@ -25,7 +25,7 @@ If you decide to use the data or the code, please contact me via mail at kssrr@t
 
 ## Example usage
 
-An elaborate example (topic modelling) is shown in `topic_modelling_example/topic_modelling.md`, but you can also do a lot of interesting, more basic exploratory analysis with this kind of data, for example examine reporting on political parties:
+An elaborate example (topic modelling) is shown [here](https://github.com/kssrr/german-media-scrape/blob/master/topic_modelling_example/topic_modelling.md), but you can also do a lot of interesting, more basic exploratory analysis with this kind of data, for example examine reporting on political parties:
 
 ![Reporting on political parties on two German news websites.](https://user-images.githubusercontent.com/121236725/210736182-01f7a3f2-3f72-420c-b03e-8cc252426dba.png)
 
