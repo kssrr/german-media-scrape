@@ -1,6 +1,6 @@
 Topic modelling with German language data
 ================
-Lennart Kasserra
+Lennart Kasserra & Martin Simons
 2023-03-29
 
 This is an example of how to use the data sets for a slightly more
