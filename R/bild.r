@@ -108,7 +108,7 @@ scrape_safely <- function(article_url) {
     },
     error = function(e) {
       cat(
-        glue::glue("An error occured when fetching {url}:\n"), 
+        glue::glue("An error occured when fetching {article_url}:\n"), 
         as.character(e$message)
       )
       return()
