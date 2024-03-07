@@ -101,9 +101,6 @@ scrape_article <- function(src) {
   article
 }
 
-#scrape_article("https://www.bild.de/regional/ruhrgebiet/duesseldorf-aktuell/weihnachts-unglueck-bei-familie-in-essen-wohnung-nach-baum-brand-unbewohnbar-82362658.bild.html")
-#scrape_article("https://www.bild.de/bild-plus/regional/rheinland-pfalz/regional/maedchen-mord-vor-gericht-luises-eltern-kaempfen-um-schmerzensgeld-87422696.bild.html")
-
 scrape_safely <- function(article_url) {
   tryCatch(
     expr = {
