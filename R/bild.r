@@ -127,5 +127,3 @@ articles <- future_map(article_urls, scrape_safely, .progress = TRUE)
 articles <- articles |> list_rbind()
 
 articles |> readr::write_csv("bild_full.csv")
-
-has_paywall(read_html(article_urls[174]))
