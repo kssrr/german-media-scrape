@@ -54,6 +54,11 @@ get_json <- function(src) {
   list(response = response, content = content)
 }
 
+guard <- function(x) {
+  if (rlang::is_empty(x)) return(NA_character_)
+  x
+}
+
 get_body <- function(src) {
   src |> 
     html_element("body") |> 
