@@ -89,7 +89,7 @@ def get_meta(soup: BeautifulSoup, name: str) -> Optional[str]:
 def scrape_article(url: str, session: requests.Session) -> Article:
     resp = session.get(url, timeout=10)
     resp.raise_for_status()
-    soup = BeautifulSoup(resp.content, "html")
+    soup = BeautifulSoup(resp.content, "lxml")
 
     paywall = paywalled(resp.text)
 
